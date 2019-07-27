@@ -1,16 +1,15 @@
 {
   "files": {
-    "main.css": "/gutenberg_search/static/css/main.19393e92.chunk.css",
-    "main.js": "/gutenberg_search/static/js/main.c77e2525.chunk.js",
-    "main.js.map": "/gutenberg_search/static/js/main.c77e2525.chunk.js.map",
+    "main.css": "/gutenberg_search/static/css/main.5ecd60fb.chunk.css",
+    "main.js": "/gutenberg_search/static/js/main.be603e1c.chunk.js",
+    "main.js.map": "/gutenberg_search/static/js/main.be603e1c.chunk.js.map",
     "runtime~main.js": "/gutenberg_search/static/js/runtime~main.10560567.js",
     "runtime~main.js.map": "/gutenberg_search/static/js/runtime~main.10560567.js.map",
-    "static/js/2.b41502e9.chunk.js": "/gutenberg_search/static/js/2.b41502e9.chunk.js",
-    "static/js/2.b41502e9.chunk.js.map": "/gutenberg_search/static/js/2.b41502e9.chunk.js.map",
+    "static/js/2.65aa1cca.chunk.js": "/gutenberg_search/static/js/2.65aa1cca.chunk.js",
+    "static/js/2.65aa1cca.chunk.js.map": "/gutenberg_search/static/js/2.65aa1cca.chunk.js.map",
     "index.html": "/gutenberg_search/index.html",
-    "precache-manifest.9a8c9601c6309019d5aeeee6896f57a5.js": "/gutenberg_search/precache-manifest.9a8c9601c6309019d5aeeee6896f57a5.js",
+    "precache-manifest.784a40c23d3109776f3af21e22b5ad12.js": "/gutenberg_search/precache-manifest.784a40c23d3109776f3af21e22b5ad12.js",
     "service-worker.js": "/gutenberg_search/service-worker.js",
-    "static/css/main.19393e92.chunk.css.map": "/gutenberg_search/static/css/main.19393e92.chunk.css.map",
-    "static/media/logo.svg": "/gutenberg_search/static/media/logo.5d5d9eef.svg"
+    "static/css/main.5ecd60fb.chunk.css.map": "/gutenberg_search/static/css/main.5ecd60fb.chunk.css.map"
   }
 }
