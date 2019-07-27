@@ -23,36 +23,43 @@ async function fetchArticles() {
       // parse article's name and id into object
       const [_, name, id] = line.match(/^(.*?)\s+(\d+)$/);
       return { name, id };
-    })
-    .slice(0, 200); // TODO: remove this when ready
+    });
 }
 
 interface Props {}
 
 interface State {
   articles: Array<{ id: string; name: string }>;
+  filteredArticles: Array<{ id: string; name: string }>;
   search: string;
 }
 
 export default class Counter extends React.Component<Props, State> {
   state: State = {
     articles: [],
+    filteredArticles: [],
     search: ""
   };
 
   async componentDidMount() {
     const articles = await fetchArticles();
-    this.setState({ articles });
+    this.setState({ articles }, () => {
+      this.setState({
+        filteredArticles: this.state.articles.slice(0, MAX_DISPLAY_ITEMS)
+      });
+    });
   }
 
   filterResults = searchTerm => {
-    let filteredArticles = this.state.articles;
+    let filteredArticles = this.state.filteredArticles;
+
     filteredArticles = filteredArticles.filter(article => {
       let articleName = article.name.toLowerCase();
       return articleName.indexOf(searchTerm.toLowerCase()) !== -1;
     });
+
     this.setState({
-      articles: filteredArticles
+      filteredArticles: filteredArticles
     });
   };
 
@@ -61,9 +68,20 @@ export default class Counter extends React.Component<Props, State> {
     this.filterResults(event.target.value);
   };
 
+  handleElementScroll = (event: React.ChangeEvent<any>) => {
+    let element = event.target;
+    if (element.offsetHeight + element.scrollTop >= element.scrollHeight) {
+      this.setState({
+        filteredArticles: this.state.articles.slice(
+          0,
+          this.state.filteredArticles.length + MAX_DISPLAY_ITEMS
+        )
+      });
+    }
+  };
+
   render(): React.ReactElement {
-    const { articles } = this.state;
-    var maxArticles = articles.slice(0, MAX_DISPLAY_ITEMS);
+    const { filteredArticles } = this.state;
 
     return (
       <main className="layout-search">
@@ -76,10 +94,10 @@ export default class Counter extends React.Component<Props, State> {
             value={this.state.search}
           />
           <div className="results">
-            <ul className="articles">
-              {maxArticles.map((item, index) => {
+            <ul className="articles" onScroll={this.handleElementScroll}>
+              {filteredArticles.map((item, index) => {
                 return [
-                  <li>
+                  <li key={item.id}>
                     <a
                       target="_blank"
                       rel="noopener noreferrer"
