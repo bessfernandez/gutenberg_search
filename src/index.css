@@ -36,7 +36,12 @@ body {
   border: 1px solid #ccc;
 }
 
-.articles {
+.layout-search {
+  border: 1px solid #ccc;
+  max-width: 70%;
+}
+.layout-search-inner {
+  padding: 10px;
 }
 
 ul {

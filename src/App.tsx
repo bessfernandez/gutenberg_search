@@ -46,49 +46,54 @@ export default class Counter extends React.Component<Props, State> {
   }
 
   filterResults = searchTerm => {
-    var updatedArticles = this.state.articles.filter(article => {
-      return article.name.includes(searchTerm);
+    let filteredArticles = this.state.articles;
+    filteredArticles = filteredArticles.filter(article => {
+      let articleName = article.name.toLowerCase();
+      return articleName.indexOf(searchTerm.toLowerCase()) !== -1;
     });
-
-    this.setState({ articles: updatedArticles });
+    this.setState({
+      articles: filteredArticles
+    });
   };
 
-  handleInputUpdate = event => {
+  handleInputUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ search: event.target.value });
     this.filterResults(event.target.value);
   };
 
-  render() {
+  render(): React.ReactElement {
     const { articles } = this.state;
     var maxArticles = articles.slice(0, MAX_DISPLAY_ITEMS);
 
     return (
-      <div>
-        <input
-          className="search"
-          type="text"
-          placeholder="Search Gutenberg Catalog"
-          onChange={this.handleInputUpdate}
-          value={this.state.search}
-        />
-        <div className="results">
-          <ul className="articles">
-            {maxArticles.map((item, index) => {
-              return [
-                <li>
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={getArticleUrl(item.id)}
-                  >
-                    {item.name}
-                  </a>
-                </li>
-              ];
-            })}
-          </ul>
+      <main className="layout-search">
+        <div className="layout-search-inner">
+          <input
+            className="search"
+            type="text"
+            placeholder="Search Gutenberg Catalog"
+            onChange={this.handleInputUpdate}
+            value={this.state.search}
+          />
+          <div className="results">
+            <ul className="articles">
+              {maxArticles.map((item, index) => {
+                return [
+                  <li>
+                    <a
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={getArticleUrl(item.id)}
+                    >
+                      {item.name}
+                    </a>
+                  </li>
+                ];
+              })}
+            </ul>
+          </div>
         </div>
-      </div>
+      </main>
     );
   }
 }
