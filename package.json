@@ -2,11 +2,13 @@
   "name": "gutenberg_search",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://bessfernandez.github.io/gutenberg_search",
   "dependencies": {
     "@types/jest": "24.0.15",
-    "@types/node": "12.6.8",
+    "@types/node": "^12.6.8",
     "@types/react": "16.8.23",
     "@types/react-dom": "16.8.5",
+    "gh-pages": "^2.0.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-scripts": "3.0.1",
@@ -14,6 +16,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d demo",
     "build": "react-scripts build && rm -rf demo && mv build demo",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
