@@ -31,6 +31,8 @@ interface Props {}
 interface State {
   articles: Array<{ id: string; name: string; origName: string }>;
   filteredArticles: Array<{ id: string; origName: string; name: string }>;
+  resultsCount: number;
+  filterTime: number;
   search: string;
 }
 
@@ -38,6 +40,8 @@ export default class Counter extends React.Component<Props, State> {
   state: State = {
     articles: [],
     filteredArticles: [],
+    resultsCount: 0,
+    filterTime: 20,
     search: ""
   };
 
@@ -82,12 +86,20 @@ export default class Counter extends React.Component<Props, State> {
       });
 
       this.setState({
-        filteredArticles: filteredArticles
+        filteredArticles: filteredArticles,
+        resultsCount: filteredArticles.length
       });
     } else {
+      if (searchTerm.length === 0) {
+        this.state.filteredArticles.forEach((item, index) => {
+          item.name = item.origName;
+        });
+      }
+
       // reset filtered article state back to its max display
       this.setState({
-        filteredArticles: this.state.articles.slice(0, MAX_DISPLAY_ITEMS)
+        filteredArticles: this.state.articles.slice(0, MAX_DISPLAY_ITEMS),
+        resultsCount: 0
       });
     }
   };
@@ -130,6 +142,12 @@ export default class Counter extends React.Component<Props, State> {
             value={this.state.search}
           />
           <div className="results">
+            {!!this.state.resultsCount && (
+              <span className="result-count">
+                Found {this.state.resultsCount} results in{" "}
+                {this.state.filterTime}
+              </span>
+            )}
             <ul className="articles" onScroll={this.handleElementScroll}>
               {filteredArticles.map((item, index) => {
                 return [
