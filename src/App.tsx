@@ -4,11 +4,11 @@ const CATALOG_URL = `https://cdn.mxpnl.com/static/misc/gutenberg-catalog.txt`;
 const STORAGE_KEY = `gutenberg-catalog`;
 const MAX_DISPLAY_ITEMS = 50;
 
-function getArticleUrl(id) {
+function getArticleUrl(id: string) {
   return `https://www.gutenberg.org/ebooks/${id}`;
 }
 
-async function fetchArticles() {
+async function fetchArticles(): Promise<any> {
   let catalog = localStorage.getItem(STORAGE_KEY);
   if (!catalog) {
     catalog = await (await fetch(CATALOG_URL)).text();
@@ -31,8 +31,8 @@ interface Props {}
 interface State {
   articles: Array<{ id: string; name: string; origName: string }>;
   filteredArticles: Array<{ id: string; origName: string; name: string }>;
-  resultsCount: number;
   filterTime: number;
+  resultsCount: number;
   search: string;
 }
 
@@ -40,13 +40,13 @@ export default class Counter extends React.Component<Props, State> {
   state: State = {
     articles: [],
     filteredArticles: [],
-    resultsCount: 0,
     filterTime: 0,
+    resultsCount: 0,
     search: ""
   };
 
-  timerId: any = null;
-  startTime: Date = new Date(null || 0);
+  resultsTimerId: any = null;
+  filterStartTime: Date = new Date(null || 0);
 
   async componentDidMount() {
     const articles = await fetchArticles();
@@ -57,31 +57,26 @@ export default class Counter extends React.Component<Props, State> {
     });
   }
 
-  startTimer = start => {
-    if (!this.timerId) {
-      this.startTime = start;
+  filterStartTimer = (start: Date) => {
+    if (!this.resultsTimerId) {
+      this.filterStartTime = start;
     }
   };
 
   stopTimer = () => {
-    let stopTime = new Date();
-    let fullTime =
-      stopTime.getMilliseconds() - this.startTime.getMilliseconds();
+    let stopTime: Date = new Date();
+    let timeDifferenceInMillis: number =
+      stopTime.getMilliseconds() - this.filterStartTime.getMilliseconds();
 
     this.setState({
-      filterTime: fullTime
+      filterTime: timeDifferenceInMillis
     });
   };
 
-  filterResults = searchTerm => {
-    let start = new Date();
-
-    this.startTimer(start);
-
+  searchArticles = (searchTerm: string) => {
     // start searching only past 3 chars to optimize performance
     if (searchTerm.length > 3) {
       let filteredArticles = this.state.articles;
-      let regexMatch = new RegExp(searchTerm, "gi");
 
       // reset each filtered article to its original name -
       // in case name has been augment through previous filter operation
@@ -90,50 +85,83 @@ export default class Counter extends React.Component<Props, State> {
       });
 
       // return only articles where search term appears in name
-      filteredArticles = filteredArticles.filter(article => {
+      return (filteredArticles = filteredArticles.filter(article => {
         let articleName = article.name.toLowerCase();
         return articleName.indexOf(searchTerm.toLowerCase()) !== -1;
-      });
+      }));
+    }
+  };
 
-      // wrap matched search term with markup
-      filteredArticles.forEach((item, index) => {
-        let nameMatch = item.name.match(regexMatch);
+  addSearchMatchMarkup = (searchTerm: string, filteredArticles) => {
+    let regexMatch = new RegExp(searchTerm, "gi");
 
-        // match name making sure to use explicit match so casing is preserved
-        if (nameMatch) {
-          item.name = item.name.replace(
-            nameMatch[0],
-            `<span class="highlight">${nameMatch[0]}</span>`
+    // wrap matched search term with markup
+    filteredArticles.forEach((item, index) => {
+      let nameMatch = item.name.match(regexMatch);
+
+      // match name making sure to use explicit match so casing is preserved
+      if (nameMatch) {
+        item.name = item.name.replace(
+          nameMatch[0],
+          `<span class="highlight">${nameMatch[0]}</span>`
+        );
+      }
+    });
+
+    return filteredArticles;
+  };
+
+  resetArticleNames = () => {
+    this.state.filteredArticles.forEach((item, index) => {
+      item.name = item.origName;
+    });
+  };
+
+  filterResults = searchTerm => {
+    let start = new Date();
+    this.filterStartTimer(start);
+
+    // start searching only past 3 chars to optimize performance
+    if (searchTerm.length > 3) {
+      // filter articles based on search term
+      let filteredArticles = this.searchArticles(searchTerm);
+
+      if (filteredArticles) {
+        // wrap matched search term with markup
+        let filteredArticlesWithMarkup = this.addSearchMatchMarkup(
+          searchTerm,
+          filteredArticles
+        );
+
+        if (filteredArticlesWithMarkup) {
+          // set state with updated filtered articles and result count
+          // after state is done being set stop the timer and set back to null
+          this.setState(
+            {
+              filteredArticles: filteredArticlesWithMarkup,
+              resultsCount: filteredArticles.length
+            },
+            () => {
+              this.stopTimer();
+              this.resultsTimerId = null;
+            }
           );
         }
-      });
-      this.setState(
-        {
-          filteredArticles: filteredArticles,
-          resultsCount: filteredArticles.length
-        },
-        () => {
-          this.stopTimer();
-          this.timerId = null;
-
-          // this.stopTimer();
-          // after state setting is done, clear interval
-        }
-      );
-    } else {
-      if (searchTerm.length === 0) {
-        this.state.filteredArticles.forEach((item, index) => {
-          item.name = item.origName;
-        });
       }
+    } else {
+      this.resetArticleNames();
+
+      // reset articles on empty search
+      if (searchTerm.length === 0) {
+        this.stopTimer();
+        this.resultsTimerId = null;
+      }
+
       // reset filtered article state back to its max display
-      this.setState(
-        {
-          filteredArticles: this.state.articles.slice(0, MAX_DISPLAY_ITEMS),
-          resultsCount: 0
-        },
-        () => {}
-      );
+      this.setState({
+        filteredArticles: this.state.articles.slice(0, MAX_DISPLAY_ITEMS),
+        resultsCount: 0
+      });
     }
   };
 
@@ -147,6 +175,8 @@ export default class Counter extends React.Component<Props, State> {
     if (!this.state.search.length) {
       let element = event.target;
       if (element.offsetHeight + element.scrollTop >= element.scrollHeight) {
+        // every time user reaches the bottom of scroll overflow add another chunk
+        // of MAX_DISPLAY_ITEMS
         this.setState({
           filteredArticles: this.state.articles.slice(
             0,
@@ -178,7 +208,10 @@ export default class Counter extends React.Component<Props, State> {
             {!!this.state.resultsCount && (
               <span className="result-count">
                 Found {this.state.resultsCount} results in{" "}
-                {this.state.filterTime}ms
+                {Math.sign(this.state.filterTime) === 1
+                  ? this.state.filterTime
+                  : 0}
+                ms
               </span>
             )}
             <ul className="articles" onScroll={this.handleElementScroll}>
