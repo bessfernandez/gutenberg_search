@@ -20,6 +20,24 @@ body {
   padding: 0px;
 }
 
+/* Base style resets */
+a:hover {
+  text-decoration: underline;
+}
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+ul li a {
+  color: #000;
+  text-decoration: none;
+}
+
+.highlight {
+  font-weight: bold;
+}
+
 .catalog {
   width: 500px;
   border: 1px solid #ddd;
@@ -27,8 +45,6 @@ body {
 }
 
 .search {
-  color: inherit;
-  font-size: inherit;
   margin-bottom: 10px;
   padding: 5px 10px;
   width: 100%;
@@ -42,20 +58,6 @@ body {
 }
 .layout-search-inner {
   padding: 10px;
-}
-
-/* Base style resets */
-a:hover {
-  text-decoration: underline;
-}
-ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-ul li a {
-  color: #000;
-  text-decoration: none;
 }
 
 /* Articles */

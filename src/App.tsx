@@ -22,15 +22,15 @@ async function fetchArticles() {
     .map(line => {
       // parse article's name and id into object
       const [_, name, id] = line.match(/^(.*?)\s+(\d+)$/);
-      return { name, id };
+      return { name, origName: name, id };
     });
 }
 
 interface Props {}
 
 interface State {
-  articles: Array<{ id: string; name: string }>;
-  filteredArticles: Array<{ id: string; name: string }>;
+  articles: Array<{ id: string; name: string; origName: string }>;
+  filteredArticles: Array<{ id: string; origName: string; name: string }>;
   search: string;
 }
 
@@ -51,16 +51,45 @@ export default class Counter extends React.Component<Props, State> {
   }
 
   filterResults = searchTerm => {
-    let filteredArticles = this.state.filteredArticles;
+    // start searching only past 3 chars to optimize performance
+    if (searchTerm.length > 3) {
+      let filteredArticles = this.state.articles;
+      let regexMatch = new RegExp(searchTerm, "gi");
 
-    filteredArticles = filteredArticles.filter(article => {
-      let articleName = article.name.toLowerCase();
-      return articleName.indexOf(searchTerm.toLowerCase()) !== -1;
-    });
+      // reset each filtered article to its original name -
+      // in case name has been augment through previous filter operation
+      filteredArticles.forEach((item, index) => {
+        item.name = item.origName;
+      });
 
-    this.setState({
-      filteredArticles: filteredArticles
-    });
+      // return only articles where search term appears in name
+      filteredArticles = filteredArticles.filter(article => {
+        let articleName = article.name.toLowerCase();
+        return articleName.indexOf(searchTerm.toLowerCase()) !== -1;
+      });
+
+      // wrap matched search term with markup
+      filteredArticles.forEach((item, index) => {
+        let nameMatch = item.name.match(regexMatch);
+
+        // match name making sure to use explicit match so casing is preserved
+        if (nameMatch) {
+          item.name = item.name.replace(
+            nameMatch[0],
+            `<span class="highlight">${nameMatch[0]}</span>`
+          );
+        }
+      });
+
+      this.setState({
+        filteredArticles: filteredArticles
+      });
+    } else {
+      // reset filtered article state back to its max display
+      this.setState({
+        filteredArticles: this.state.articles.slice(0, MAX_DISPLAY_ITEMS)
+      });
+    }
   };
 
   handleInputUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,16 +98,23 @@ export default class Counter extends React.Component<Props, State> {
   };
 
   handleElementScroll = (event: React.ChangeEvent<any>) => {
-    let element = event.target;
-    if (element.offsetHeight + element.scrollTop >= element.scrollHeight) {
-      this.setState({
-        filteredArticles: this.state.articles.slice(
-          0,
-          this.state.filteredArticles.length + MAX_DISPLAY_ITEMS
-        )
-      });
+    // only augment state of filtered results when not searching
+    if (!this.state.search.length) {
+      let element = event.target;
+      if (element.offsetHeight + element.scrollTop >= element.scrollHeight) {
+        this.setState({
+          filteredArticles: this.state.articles.slice(
+            0,
+            this.state.filteredArticles.length + MAX_DISPLAY_ITEMS
+          )
+        });
+      }
     }
   };
+
+  createMarkup(name) {
+    return { __html: name };
+  }
 
   render(): React.ReactElement {
     const { filteredArticles } = this.state;
@@ -102,9 +138,9 @@ export default class Counter extends React.Component<Props, State> {
                       target="_blank"
                       rel="noopener noreferrer"
                       href={getArticleUrl(item.id)}
-                    >
-                      {item.name}
-                    </a>
+                      key={index}
+                      dangerouslySetInnerHTML={this.createMarkup(item.name)}
+                    />
                   </li>
                 ];
               })}
