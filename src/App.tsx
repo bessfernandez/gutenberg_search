@@ -41,9 +41,12 @@ export default class Counter extends React.Component<Props, State> {
     articles: [],
     filteredArticles: [],
     resultsCount: 0,
-    filterTime: 20,
+    filterTime: 0,
     search: ""
   };
+
+  timerId: any = null;
+  startTime: Date = new Date(null || 0);
 
   async componentDidMount() {
     const articles = await fetchArticles();
@@ -54,7 +57,27 @@ export default class Counter extends React.Component<Props, State> {
     });
   }
 
+  startTimer = start => {
+    if (!this.timerId) {
+      this.startTime = start;
+    }
+  };
+
+  stopTimer = () => {
+    let stopTime = new Date();
+    let fullTime =
+      stopTime.getMilliseconds() - this.startTime.getMilliseconds();
+
+    this.setState({
+      filterTime: fullTime
+    });
+  };
+
   filterResults = searchTerm => {
+    let start = new Date();
+
+    this.startTimer(start);
+
     // start searching only past 3 chars to optimize performance
     if (searchTerm.length > 3) {
       let filteredArticles = this.state.articles;
@@ -84,23 +107,33 @@ export default class Counter extends React.Component<Props, State> {
           );
         }
       });
+      this.setState(
+        {
+          filteredArticles: filteredArticles,
+          resultsCount: filteredArticles.length
+        },
+        () => {
+          this.stopTimer();
+          this.timerId = null;
 
-      this.setState({
-        filteredArticles: filteredArticles,
-        resultsCount: filteredArticles.length
-      });
+          // this.stopTimer();
+          // after state setting is done, clear interval
+        }
+      );
     } else {
       if (searchTerm.length === 0) {
         this.state.filteredArticles.forEach((item, index) => {
           item.name = item.origName;
         });
       }
-
       // reset filtered article state back to its max display
-      this.setState({
-        filteredArticles: this.state.articles.slice(0, MAX_DISPLAY_ITEMS),
-        resultsCount: 0
-      });
+      this.setState(
+        {
+          filteredArticles: this.state.articles.slice(0, MAX_DISPLAY_ITEMS),
+          resultsCount: 0
+        },
+        () => {}
+      );
     }
   };
 
@@ -145,7 +178,7 @@ export default class Counter extends React.Component<Props, State> {
             {!!this.state.resultsCount && (
               <span className="result-count">
                 Found {this.state.resultsCount} results in{" "}
-                {this.state.filterTime}
+                {this.state.filterTime}ms
               </span>
             )}
             <ul className="articles" onScroll={this.handleElementScroll}>
