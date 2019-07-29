@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "17bc6b14e26ef0f7eb0ca1de81982193",
+    "revision": "5d40fac8c87c01d1f2b33a5bb26be03c",
     "url": "/gutenberg_search/index.html"
   },
   {
@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/gutenberg_search/static/css/2.764ccc25.chunk.css"
   },
   {
-    "revision": "c0cbbcfc78a848b74ce7",
+    "revision": "bcc5212415f8ede9f886",
     "url": "/gutenberg_search/static/css/main.7a95633b.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/gutenberg_search/static/js/2.fda1c694.chunk.js"
   },
   {
-    "revision": "c0cbbcfc78a848b74ce7",
-    "url": "/gutenberg_search/static/js/main.ab4423ac.chunk.js"
+    "revision": "bcc5212415f8ede9f886",
+    "url": "/gutenberg_search/static/js/main.727f2777.chunk.js"
   },
   {
     "revision": "a86209b4976847b04898",
