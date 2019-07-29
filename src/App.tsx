@@ -47,11 +47,13 @@ export default class GutenbergSearch extends React.Component<Props, State> {
 
   resultsTimerId: any = null;
   filterStartTime: Date = new Date(null || 0);
-  textInput = React.createRef();
+  searchInput = React.createRef();
 
   async componentDidMount() {
     const articles = await fetchArticles();
     this.setState({ articles }, () => {
+      // after articles are finished being set in state update filtered articles
+      // for display at their max display count
       this.setState({
         filteredArticles: this.state.articles.slice(0, MAX_DISPLAY_ITEMS)
       });
@@ -81,9 +83,7 @@ export default class GutenbergSearch extends React.Component<Props, State> {
 
       // reset each filtered article to its original name -
       // in case name has been augment through previous filter operation
-      filteredArticles.forEach((item, index) => {
-        item.name = item.origName;
-      });
+      this.resetArticleNames();
 
       // return only articles where search term appears in name
       return (filteredArticles = filteredArticles.filter(article => {
@@ -168,6 +168,7 @@ export default class GutenbergSearch extends React.Component<Props, State> {
 
   handleInputUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ search: event.target.value });
+    // filter articles based on search term
     this.filterResults(event.target.value);
   };
 
@@ -175,9 +176,10 @@ export default class GutenbergSearch extends React.Component<Props, State> {
     // only augment state of filtered results when not searching
     if (!this.state.search.length) {
       let element = event.target;
+
+      // every time user reaches the bottom of scroll overflow add another chunk
+      // of MAX_DISPLAY_ITEMS
       if (element.offsetHeight + element.scrollTop >= element.scrollHeight) {
-        // every time user reaches the bottom of scroll overflow add another chunk
-        // of MAX_DISPLAY_ITEMS
         this.setState({
           filteredArticles: this.state.articles.slice(
             0,
@@ -189,18 +191,19 @@ export default class GutenbergSearch extends React.Component<Props, State> {
   };
 
   handleKeyDown = (event, index = 0) => {
+    // handle down arrow
     if (event.keyCode === 40) {
       event.preventDefault();
 
       // when on input focus on next child element which is <li>
       if (event.target.nodeName === "INPUT") {
         // @ts-ignore
-        this.textInput.current.children[0].focus();
+        this.searchInput.current.children[0].focus();
       } else if (event.target.nodeName === "A") {
         // when already within anchor navigate up to parent and find next li + anchor
         // based on index
         // @ts-ignore
-        this.textInput.current.parentElement.children[
+        this.searchInput.current.parentElement.children[
           index + 1
         ].children[0].focus();
       }
@@ -211,12 +214,12 @@ export default class GutenbergSearch extends React.Component<Props, State> {
         if (index === 0) {
           // when on first anchor walk back up the tree to the input element
           // @ts-ignore
-          this.textInput.current.parentElement.parentElement.previousSibling.focus();
+          this.searchInput.current.parentElement.parentElement.previousSibling.focus();
         } else {
           // when already within anchor navigate up to parent and previous next li + anchor
           // based on index
           // @ts-ignore
-          this.textInput.current.parentElement.children[
+          this.searchInput.current.parentElement.children[
             index - 1
           ].children[0].focus();
         }
@@ -225,6 +228,10 @@ export default class GutenbergSearch extends React.Component<Props, State> {
   };
 
   createMarkup(name) {
+    // allow React markup to render provided HTML
+    // Note: this is not suggested and could have serious
+    // security implications
+    // https://reactjs.org/docs/dom-elements.html#dangerouslysetinnerhtml
     return { __html: name };
   }
 
@@ -258,7 +265,7 @@ export default class GutenbergSearch extends React.Component<Props, State> {
                   <li
                     key={item.id}
                     //@ts-ignore
-                    ref={index === 0 ? this.textInput : null}
+                    ref={index === 0 ? this.searchInput : null}
                   >
                     <a
                       target="_blank"
