@@ -36,7 +36,7 @@ interface State {
   search: string;
 }
 
-export default class Counter extends React.Component<Props, State> {
+export default class GutenbergSearch extends React.Component<Props, State> {
   state: State = {
     articles: [],
     filteredArticles: [],
@@ -47,6 +47,7 @@ export default class Counter extends React.Component<Props, State> {
 
   resultsTimerId: any = null;
   filterStartTime: Date = new Date(null || 0);
+  textInput = React.createRef();
 
   async componentDidMount() {
     const articles = await fetchArticles();
@@ -187,6 +188,42 @@ export default class Counter extends React.Component<Props, State> {
     }
   };
 
+  handleKeyDown = (event, index = 0) => {
+    if (event.keyCode === 40) {
+      event.preventDefault();
+
+      // when on input focus on next child element which is <li>
+      if (event.target.nodeName === "INPUT") {
+        // @ts-ignore
+        this.textInput.current.children[0].focus();
+      } else if (event.target.nodeName === "A") {
+        // when already within anchor navigate up to parent and find next li + anchor
+        // based on index
+        // @ts-ignore
+        this.textInput.current.parentElement.children[
+          index + 1
+        ].children[0].focus();
+      }
+    } else if (event.keyCode === 38) {
+      event.preventDefault();
+
+      if (event.target.nodeName === "A") {
+        if (index === 0) {
+          // when on first anchor walk back up the tree to the input element
+          // @ts-ignore
+          this.textInput.current.parentElement.parentElement.previousSibling.focus();
+        } else {
+          // when already within anchor navigate up to parent and previous next li + anchor
+          // based on index
+          // @ts-ignore
+          this.textInput.current.parentElement.children[
+            index - 1
+          ].children[0].focus();
+        }
+      }
+    }
+  };
+
   createMarkup(name) {
     return { __html: name };
   }
@@ -201,6 +238,7 @@ export default class Counter extends React.Component<Props, State> {
             className="search"
             type="text"
             placeholder="Search Gutenberg Catalog"
+            onKeyDown={this.handleKeyDown}
             onChange={this.handleInputUpdate}
             value={this.state.search}
           />
@@ -217,13 +255,21 @@ export default class Counter extends React.Component<Props, State> {
             <ul className="articles" onScroll={this.handleElementScroll}>
               {filteredArticles.map((item, index) => {
                 return [
-                  <li key={item.id}>
+                  <li
+                    key={item.id}
+                    //@ts-ignore
+                    ref={index === 0 ? this.textInput : null}
+                  >
                     <a
                       target="_blank"
                       rel="noopener noreferrer"
+                      // @ts-ignore
+                      tabIndex="0"
+                      data-index={index}
                       href={getArticleUrl(item.id)}
                       key={index}
                       dangerouslySetInnerHTML={this.createMarkup(item.name)}
+                      onKeyDown={event => this.handleKeyDown(event, index)}
                     />
                   </li>
                 ];
