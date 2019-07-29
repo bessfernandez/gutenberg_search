@@ -2,7 +2,7 @@
 
 # Gutenberg catalog search
 
-A demo of pulling in open domain articles ebooks from the [http://gutenberg.org/](http://gutenberg.org/) and implementing search as you type. Check it out on my [Github.io page](https://bessfernandez.github.io/gutenberg_search/). 
+A demo of pulling in open domain articles and ebooks from the [Gutenberg Project](http://gutenberg.org/) and implementing search as you type. Check it out on my [Github.io page](https://bessfernandez.github.io/gutenberg_search/). 
 
 ## Features
 - Shows the names of the articles or books as links. Clicking an article opens in a new tab. Shows a 50 limit article count by default.
@@ -15,9 +15,10 @@ A demo of pulling in open domain articles ebooks from the [http://gutenberg.org/
 
 ## TODO
 - The keyboard navigation is rough. It is very tightly coupled to the HTML structure to search for the next / previous items to navigate to. Currently React doesn't allow an array of refs, so couldn't arbitrarily update ref indexes to focus on. The better bet would likely integrate a third party library to handle hot keys or similar.
-- Time it took to search timer could be improved - it looks lik ethere may be some inconsistencies with timing, needs more investigation
+- Time it took to search timer could be improved - it looks like there may be some inconsistencies with timing, needs more investigation
 - Tests need to be added for basic state and render changes such as ensuring that correct length of articles show, matched segments are built correctly, etc.
 - Overall the TypeScript could be improved
+- The product structure isn't great - there should be components, tests, containers directory, etc.
   
 
 ## Tech stack
