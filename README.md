@@ -14,6 +14,7 @@ A demo of pulling in open domain articles and ebooks from the [Gutenberg Project
 
 
 ## TODO
+- The amount of articles from Gutenberg when added to local storage currently exceed local storage limit on many browsers (Safari, and mobile browsers), Chrome works as expected. Code currently throws an error if this limit is exceeded. This obviously should be fixed by either storing data in DB looking for a public API to use.
 - The keyboard navigation is rough. It is very tightly coupled to the HTML structure to search for the next / previous items to navigate to. Currently React doesn't allow an array of refs, so couldn't arbitrarily update ref indexes to focus on. The better bet would likely integrate a third party library to handle hot keys or similar.
 - Time it took to search timer could be improved - it looks like there may be some inconsistencies with timing, needs more investigation
 - Tests need to be added for basic state and render changes such as ensuring that correct length of articles show, matched segments are built correctly, etc.

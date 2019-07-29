@@ -11,8 +11,16 @@ function getArticleUrl(id: string) {
 async function fetchArticles(): Promise<any> {
   let catalog = localStorage.getItem(STORAGE_KEY);
   if (!catalog) {
-    catalog = await (await fetch(CATALOG_URL)).text();
-    localStorage.setItem(STORAGE_KEY, catalog);
+    try {
+      catalog = await (await fetch(CATALOG_URL)).text();
+      localStorage.setItem(STORAGE_KEY, catalog);
+    } catch (error) {
+      if (error.name === "QuotaExceededError") {
+        throw new Error("Sorry local storage limit is exceeded");
+      } else {
+        throw new Error("Unable to load articles");
+      }
+    }
   }
 
   return catalog
